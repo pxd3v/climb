@@ -3,11 +3,11 @@ import { useUserStore } from '@/stores/user';
 import { ref } from 'vue';
 import { NButton, NInput } from 'naive-ui'
 
-const { signIn } = useUserStore()
+const userStore = useUserStore()
 const email = ref('')
 const password = ref('')
 function onLogin () {
-  signIn({ email: email.value, password: password.value })
+  userStore.signIn({ email: email.value, password: password.value })
 }
 </script>
 

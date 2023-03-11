@@ -2,13 +2,15 @@
 import { RouterView } from 'vue-router'
 import { useUserStore } from './stores/user';
 import { NButton } from 'naive-ui'
+import { computed } from 'vue';
 
-const { signOut } = useUserStore()
+const userStore = useUserStore()
+const isAuthenticated = computed(() => userStore.isAuthenticated)
 </script>
 
 <template>
   <header>
-    <NButton @click="signOut">Sign out</NButton>
+    <NButton v-if="isAuthenticated" @click="userStore.signOut">Sign out</NButton>
   </header>
   <RouterView />
 </template>

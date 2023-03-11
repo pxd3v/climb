@@ -19,6 +19,7 @@ model User {
   age            Int
   gender         Gender
   participations Candidate[]
+  password       String
 }
 
 model Event {
