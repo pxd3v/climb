@@ -15,11 +15,11 @@ function onLogin () {
   <main>
     <label>
       Email
-      <NInput v-model="email"/>
+      <NInput v-model:value="email"/>
     </label>
     <label>
       Password
-      <NInput v-model="password"/>
+      <NInput v-model:value="password"/>
     </label>
     <NButton @click="onLogin" class="mt-2">
       Login
