@@ -22,18 +22,43 @@ model User {
   password       String
 }
 
+model Boulder {
+  id         Int     @id @default(autoincrement())
+  number     Int     @unique
+  event      Event   @relation(fields: [eventId], references: [id])
+  eventId    Int
+  flashScore Int
+  score      Int
+  entry      Entry[]
+}
+
 model Event {
   id         Int         @id @default(autoincrement())
-  name       String
+  name       String      @unique
   candidates Candidate[]
+  boulders   Boulder[]
+  entries    Entry[]
+}
+
+model Entry {
+  id          Int       @id @default(autoincrement())
+  candidate   Candidate @relation(fields: [candidateId], references: [id])
+  candidateId Int
+  boulder     Boulder   @relation(fields: [boulderId], references: [id])
+  boulderId   Int
+  event       Event     @relation(fields: [eventId], references: [id])
+  eventId     Int
+  tries       Int       @default(0)
+  sent        Boolean   @default(false)
 }
 
 model Candidate {
-  id      Int   @id @default(autoincrement())
-  event   Event @relation(fields: [eventId], references: [id])
-  eventId Int   @unique
-  user    User  @relation(fields: [userId], references: [id])
-  userId  Int   @unique
+  id      Int     @id @default(autoincrement())
+  event   Event   @relation(fields: [eventId], references: [id])
+  eventId Int
+  user    User    @relation(fields: [userId], references: [id])
+  userId  Int
+  entries Entry[]
 }
 
 enum Gender {

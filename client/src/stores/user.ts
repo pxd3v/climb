@@ -1,4 +1,4 @@
-import { ref, computed, watch, inject } from 'vue'
+import { ref, computed, watch, inject, onMounted } from 'vue'
 import { defineStore } from 'pinia'
 import { useRouter } from 'vue-router';
 import VueJwtDecode from 'vue-jwt-decode';
@@ -51,11 +51,18 @@ export const useUserStore = defineStore('user', () => {
   watch(token, async (newToken) => {
     if(!newToken) return
     axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+    localStorage.setItem('session_climb', newToken)
     const response = await axios.get(`${baseApi}/profile`).catch((err: Error) => {
       console.error(err)
     })
     if(!response.data.id) return
     user.value = { ...response.data }
+  })
+
+  onMounted(() => {
+    const currentSessionToken = localStorage.getItem('session_climb')
+    if(!currentSessionToken) return
+    token.value = currentSessionToken
   })
 
   return { user, signIn, signOut, isAuthenticated }

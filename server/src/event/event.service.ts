@@ -14,6 +14,29 @@ export class EventService {
     });
   }
 
+  async getEventResult(
+    eventWhereUniqueInput: Prisma.EventWhereUniqueInput,
+  ): Promise<Event | null> {
+    const eventResult = this.prisma.event.findUnique({
+      where: eventWhereUniqueInput,
+      include: {
+        boulders: {
+          include: {
+            entry: {
+              select: {
+                sent: true,
+                tries: true,
+                candidateId: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return eventResult;
+  }
+
   async events(params: {
     skip?: number;
     take?: number;
