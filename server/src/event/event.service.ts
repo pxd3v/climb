@@ -1,10 +1,23 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Event, Prisma } from '@prisma/client';
+import { Event, Prisma, Category, Gender } from '@prisma/client';
+import { sub } from 'date-fns';
+
+export type ResultFilters = {
+  minAge?: number;
+  maxAge?: number;
+  category?: Category;
+  gender?: Gender;
+};
 
 @Injectable()
 export class EventService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) {
+    prisma.$on<any>('query', (event: Prisma.QueryEvent) => {
+      console.log('Query: ' + event.query);
+      console.log('Duration: ' + event.duration + 'ms');
+    });
+  }
 
   async event(
     eventWhereUniqueInput: Prisma.EventWhereUniqueInput,
@@ -16,25 +29,47 @@ export class EventService {
 
   async getEventResult(
     eventWhereUniqueInput: Prisma.EventWhereUniqueInput,
-  ): Promise<Event | null> {
-    const eventResult = this.prisma.event.findUnique({
-      where: eventWhereUniqueInput,
-      include: {
-        boulders: {
-          include: {
-            entry: {
-              select: {
-                sent: true,
-                tries: true,
-                candidateId: true,
-              },
+    { category, gender, minAge, maxAge }: ResultFilters,
+  ): Promise<unknown> {
+    const hasToBeBornBefore = (minAge: number) =>
+      minAge ? sub(Date.now(), { years: Number(minAge) }) : undefined;
+    const hasToBeBornTill = (maxAge: number) =>
+      maxAge ? sub(Date.now(), { years: Number(maxAge) + 1 }) : undefined;
+
+    const entries = await this.prisma.entry.findMany({
+      where: {
+        eventId: eventWhereUniqueInput.id,
+        candidate: {
+          category: category || undefined,
+          user: {
+            gender: gender || undefined,
+            birthDate: {
+              lte: hasToBeBornBefore(minAge),
+              gte: hasToBeBornTill(maxAge),
             },
+          },
+        },
+      },
+      select: {
+        boulderId: true,
+        candidateId: true,
+        sent: true,
+        tries: true,
+        boulder: {
+          select: {
+            score: true,
+            flashScore: true,
           },
         },
       },
     });
 
-    return eventResult;
+    return {
+      entries,
+      count: entries.length,
+      hasToBeBornBefore: hasToBeBornBefore(minAge),
+      hasToBeBornTill: hasToBeBornTill(maxAge),
+    };
   }
 
   async events(params: {

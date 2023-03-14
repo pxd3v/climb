@@ -16,20 +16,22 @@ model User {
   name           String
   state          String
   city           String
-  age            Int
+  birthDate      DateTime
   gender         Gender
   participations Candidate[]
   password       String
 }
 
 model Boulder {
-  id         Int     @id @default(autoincrement())
-  number     Int     @unique
-  event      Event   @relation(fields: [eventId], references: [id])
+  id         Int          @id @default(autoincrement())
+  number     Int          @unique
+  event      Event        @relation(fields: [eventId], references: [id])
   eventId    Int
   flashScore Int
   score      Int
   entry      Entry[]
+  sector     String
+  color      BoulderGrade @default(verde)
 }
 
 model Event {
@@ -53,15 +55,34 @@ model Entry {
 }
 
 model Candidate {
-  id      Int     @id @default(autoincrement())
-  event   Event   @relation(fields: [eventId], references: [id])
-  eventId Int
-  user    User    @relation(fields: [userId], references: [id])
-  userId  Int
-  entries Entry[]
+  id       Int      @id @default(autoincrement())
+  event    Event    @relation(fields: [eventId], references: [id])
+  eventId  Int
+  user     User     @relation(fields: [userId], references: [id])
+  userId   Int
+  entries  Entry[]
+  category Category
+
+  @@unique([userId, eventId], name: "user_event_key")
 }
 
 enum Gender {
   Male
   Female
+}
+
+enum Category {
+  pro
+  amateur
+  kids
+}
+
+enum BoulderGrade {
+  roxo
+  branco
+  amarelo
+  verde
+  azul
+  vermelho
+  preto
 }
