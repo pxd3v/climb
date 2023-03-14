@@ -1,6 +1,6 @@
 import { ref, computed, watch, inject, onMounted } from 'vue'
 import { defineStore } from 'pinia'
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import VueJwtDecode from 'vue-jwt-decode';
 
 export type User = { email: string , password: string }
@@ -41,15 +41,16 @@ export const useUserStore = defineStore('user', () => {
     user.value = null
   }
 
-  const isAuthenticated = computed(() => user.value !== null)
+  const isAuthenticated = computed(() => token.value !== null)
 
-  watch(user, (newUser, oldValue) => {
-    if(!!newUser && !!oldValue) { return }
-    router.push({ name: newUser ? 'Dashboard' : 'Login' })
+  watch(user, (newUser) => {
+    const hasEmail = !!newUser?.email
+    console.log(hasEmail)
+    if(!hasEmail) router.push('Login')
   })
 
   watch(token, async (newToken) => {
-    if(!newToken) return
+    if(!newToken) return localStorage.setItem('session_climb', '')
     axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
     localStorage.setItem('session_climb', newToken)
     const response = await axios.get(`${baseApi}/profile`).catch((err: Error) => {

@@ -1,14 +1,20 @@
 <script setup lang="ts">
 import { useUserStore } from '@/stores/user';
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { NButton, NInput } from 'naive-ui'
+import { useRouter } from 'vue-router';
 
+const router = useRouter()
 const userStore = useUserStore()
 const email = ref('')
 const password = ref('')
 function onLogin () {
   userStore.signIn({ email: email.value, password: password.value })
 }
+onMounted(() => {
+  if(!userStore.user?.email) return
+  router.push({ name: 'Dashboard'})
+})
 </script>
 
 <template>

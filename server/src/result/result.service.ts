@@ -6,14 +6,23 @@ import { DateService } from 'src/date/date.service';
 export type ResultFilters = {
   minAge?: number;
   maxAge?: number;
-  category?: Category;
-  gender?: Gender;
+  category?: Category | 'all';
+  gender?: Gender | 'all';
 };
 
 type EntryToParse = {
   boulderId: number;
   candidateId: number;
-  candidate: Candidate;
+  candidate: {
+    category: Category;
+    user: {
+      gender: Gender;
+      name: string;
+      state: string;
+      city: string;
+      birthDate: Date;
+    };
+  };
   sent: boolean;
   tries: number;
   boulder: {
@@ -43,14 +52,16 @@ export class ResultService {
       maxAge
         ? this.dateService.subtractYears(Date.now(), Number(maxAge) + 1)
         : undefined;
-
+    const categoryToFilter =
+      category && category !== 'all' ? category : undefined;
+    const genderToFilter = gender && gender !== 'all' ? gender : undefined;
     const entries = await this.prisma.entry.findMany({
       where: {
         eventId: eventWhereUniqueInput.id,
         candidate: {
-          category: category || undefined,
+          category: categoryToFilter || undefined,
           user: {
-            gender: gender || undefined,
+            gender: genderToFilter || undefined,
             birthDate: {
               lte: hasToBeBornBefore(minAge),
               gte: hasToBeBornTill(maxAge),
@@ -61,7 +72,20 @@ export class ResultService {
       select: {
         boulderId: true,
         candidateId: true,
-        candidate: true,
+        candidate: {
+          select: {
+            user: {
+              select: {
+                name: true,
+                birthDate: true,
+                gender: true,
+                state: true,
+                city: true,
+              },
+            },
+            category: true,
+          },
+        },
         sent: true,
         tries: true,
         boulder: {
@@ -73,7 +97,7 @@ export class ResultService {
       },
     });
 
-    if (!entries || !entries.length) return;
+    if (!entries || !entries.length) return [];
 
     const result = this.parseEntries(entries);
 

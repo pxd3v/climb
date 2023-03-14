@@ -15,7 +15,7 @@ const router = createRouter({
       component: () => import('../views/LoginView.vue')
     },
     {
-      path: '/results',
+      path: '/results/:eventId',
       name: 'Results',
       component: () => import('../views/ResultsView.vue')
     },
@@ -28,8 +28,8 @@ const router = createRouter({
 })
 
 router.beforeEach((to) => {
-  const { isAuthenticated } = useUserStore()
-  if (!isAuthenticated && to.name !== 'Login') {
+  const userStore = useUserStore()
+  if (!userStore.isAuthenticated && to.name !== 'Login') {
     return { name: 'Login' }
   }
 })
