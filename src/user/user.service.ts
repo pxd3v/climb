@@ -8,9 +8,23 @@ export class UserService {
 
   async user(
     userWhereUniqueInput: Prisma.UserWhereUniqueInput,
-  ): Promise<User | null> {
+  ): Promise<Partial<User> | null> {
     return this.prisma.user.findUnique({
       where: userWhereUniqueInput,
+    });
+  }
+
+  async profile(
+    userWhereUniqueInput: Prisma.UserWhereUniqueInput,
+  ): Promise<Partial<User> | null> {
+    return this.prisma.user.findUnique({
+      where: userWhereUniqueInput,
+      select: {
+        email: true,
+        Referee: true,
+        isAdmin: true,
+        id: true,
+      },
     });
   }
 
