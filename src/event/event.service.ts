@@ -38,4 +38,21 @@ export class EventService {
       data,
     });
   }
+
+  async events(params: {
+    skip?: number;
+    take?: number;
+    cursor?: Prisma.EventWhereUniqueInput;
+    where?: Prisma.EventWhereInput;
+    orderBy?: Prisma.EventOrderByWithRelationInput;
+  }): Promise<Event[]> {
+    const { skip, take, cursor, where, orderBy } = params;
+    return this.prisma.event.findMany({
+      skip,
+      take,
+      cursor,
+      where,
+      orderBy,
+    });
+  }
 }

@@ -1,6 +1,6 @@
 export class CreateOrUpdateEntryDto {
   sent?: boolean;
-  boulderId?: number;
+  boulderNumber?: number;
   candidateNumber?: number;
   eventId?: number;
   refereeId?: number;

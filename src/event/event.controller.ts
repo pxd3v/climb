@@ -24,9 +24,19 @@ export class EventController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get(['/', ':id'])
+  @Get('/')
+  async getList(@Request() req) {
+    const where = req.user.isAdmin
+      ? undefined
+      : { Referee: { some: { userId: req.user.id } } };
+    return await this.eventService.events({
+      where,
+    });
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get(':id')
   async get(@Param('id') id) {
-    if (id === undefined) return { errorMessage: 'please provide an ID' };
     const event = await this.eventService.event({ id: Number(id) });
     if (!event) throw new BadRequestException('Invalid event');
     return event;

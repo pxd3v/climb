@@ -13,7 +13,7 @@ export class EntryService {
   }
 
   async createOrUpdateEntry({
-    boulderId,
+    boulderNumber,
     refereeId,
     candidateNumber,
     eventId,
@@ -21,7 +21,7 @@ export class EntryService {
   }: CreateOrUpdateEntryDto): Promise<Entry> {
     const entry = await this.prisma.entry.findFirst({
       where: {
-        boulderId,
+        boulder: { number: boulderNumber },
         refereeId,
         candidate: { number: candidateNumber },
         eventId,
@@ -36,7 +36,7 @@ export class EntryService {
       return this._updateEntry({ entryId: entry.id, sent, tries: entry.tries });
     } else {
       return this._createEntry({
-        boulderId,
+        boulderNumber,
         refereeId,
         candidateNumber,
         eventId,
@@ -57,7 +57,7 @@ export class EntryService {
   }
 
   _createEntry({
-    boulderId,
+    boulderNumber,
     refereeId,
     candidateNumber,
     eventId,
@@ -67,7 +67,7 @@ export class EntryService {
       data: {
         sent,
         tries: 1,
-        boulder: { connect: { id: boulderId } },
+        boulder: { connect: { number: boulderNumber } },
         candidate: {
           connect: {
             candidate_number_event_key: {
