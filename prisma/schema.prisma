@@ -18,10 +18,10 @@ model User {
   city           String
   birthDate      DateTime
   gender         Gender
-  participations Candidate[]
   password       String
-  role           UserRole    @default(athlete)
-  Entry          Entry[]
+  isAdmin        Boolean     @default(false)
+  participations Candidate[]
+  Referee        Referee[]
 }
 
 model Boulder {
@@ -43,14 +43,16 @@ model Event {
   candidates Candidate[]
   boulders   Boulder[]
   entries    Entry[]
+  Referee    Referee[]
 }
 
 model Entry {
   id          Int       @id @default(autoincrement())
   createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
   candidate   Candidate @relation(fields: [candidateId], references: [id])
   candidateId Int
-  referee     User      @relation(fields: [refereeId], references: [id])
+  referee     Referee   @relation(fields: [refereeId], references: [id])
   refereeId   Int
   boulder     Boulder   @relation(fields: [boulderId], references: [id])
   boulderId   Int
@@ -62,6 +64,7 @@ model Entry {
 
 model Candidate {
   id       Int      @id @default(autoincrement())
+  number   Int      @default(autoincrement())
   event    Event    @relation(fields: [eventId], references: [id])
   eventId  Int
   user     User     @relation(fields: [userId], references: [id])
@@ -69,7 +72,17 @@ model Candidate {
   entries  Entry[]
   category Category
 
+  @@unique([number, eventId], name: "candidate_number_event_key")
   @@unique([userId, eventId], name: "user_event_key")
+}
+
+model Referee {
+  id      Int     @id @default(autoincrement())
+  event   Event   @relation(fields: [eventId], references: [id])
+  eventId Int
+  user    User    @relation(fields: [userId], references: [id])
+  userId  Int
+  Entry   Entry[]
 }
 
 enum Gender {
@@ -91,10 +104,4 @@ enum BoulderGrade {
   azul
   vermelho
   preto
-}
-
-enum UserRole {
-  admin
-  referee
-  athlete
 }

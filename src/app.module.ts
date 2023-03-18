@@ -8,6 +8,7 @@ import { EventModule } from './event/event.module';
 import { ConfigModule } from '@nestjs/config';
 import { ResultModule } from './result/result.module';
 import { EntryModule } from './entry/entry.module';
+import { BoulderModule } from './boulder/boulder.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { EntryModule } from './entry/entry.module';
     }),
     ResultModule,
     EntryModule,
+    BoulderModule,
   ],
   controllers: [AppController],
   providers: [AppService],
