@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Candidate, Category, Gender, Prisma } from '@prisma/client';
+import { Candidate, Category, Gender, Prisma, User } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { DateService } from 'src/date/date.service';
 
@@ -104,9 +104,13 @@ export class ResultService {
     return result;
   }
 
-  parseEntries(
-    entries: Array<EntryToParse>,
-  ): Array<{ candidate: Candidate; score: number }> {
+  parseEntries(entries: Array<EntryToParse>): Array<{
+    name: string;
+    age: number;
+    gender: string;
+    category: Category;
+    score: number;
+  }> {
     const resultsMap = entries.reduce((acc, entry) => {
       if (!entry.sent) return acc;
       const { score, flashScore } = entry.boulder;
@@ -120,7 +124,23 @@ export class ResultService {
 
       return acc;
     }, {});
-    const resultsList = Object.keys(resultsMap).map((key) => resultsMap[key]);
+    const resultsList = Object.keys(resultsMap)
+      .map((key) => resultsMap[key])
+      .map(
+        (result: { candidate: Candidate & { user: User }; score: number }) => {
+          return {
+            name: result.candidate.user.name,
+            age: this.dateService.differenceInYears(
+              Date.now(),
+              result.candidate.user.birthDate,
+            ),
+            gender: result.candidate.user.gender,
+            category: result.candidate.category,
+            state: result.candidate.user.state,
+            score: result.score,
+          };
+        },
+      );
     resultsList.sort((a, b) => b.score - a.score);
     return resultsList;
   }

@@ -20,6 +20,8 @@ model User {
   gender         Gender
   participations Candidate[]
   password       String
+  role           UserRole    @default(athlete)
+  Entry          Entry[]
 }
 
 model Boulder {
@@ -37,6 +39,7 @@ model Boulder {
 model Event {
   id         Int         @id @default(autoincrement())
   name       String      @unique
+  createdAt  DateTime    @default(now())
   candidates Candidate[]
   boulders   Boulder[]
   entries    Entry[]
@@ -44,8 +47,11 @@ model Event {
 
 model Entry {
   id          Int       @id @default(autoincrement())
+  createdAt   DateTime  @default(now())
   candidate   Candidate @relation(fields: [candidateId], references: [id])
   candidateId Int
+  referee     User      @relation(fields: [refereeId], references: [id])
+  refereeId   Int
   boulder     Boulder   @relation(fields: [boulderId], references: [id])
   boulderId   Int
   event       Event     @relation(fields: [eventId], references: [id])
@@ -85,4 +91,10 @@ enum BoulderGrade {
   azul
   vermelho
   preto
+}
+
+enum UserRole {
+  admin
+  referee
+  athlete
 }

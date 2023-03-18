@@ -7,6 +7,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { EventModule } from './event/event.module';
 import { ConfigModule } from '@nestjs/config';
 import { ResultModule } from './result/result.module';
+import { EntryModule } from './entry/entry.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { ResultModule } from './result/result.module';
       isGlobal: true,
     }),
     ResultModule,
+    EntryModule,
   ],
   controllers: [AppController],
   providers: [AppService],
