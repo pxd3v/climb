@@ -9,10 +9,10 @@ export class EventService {
     private prisma: PrismaService,
     private resultService: ResultService,
   ) {
-    prisma.$on<any>('query', (event: Prisma.QueryEvent) => {
-      console.log('Query: ' + event.query);
-      console.log('Duration: ' + event.duration + 'ms');
-    });
+    // prisma.$on<any>('query', (event: Prisma.QueryEvent) => {
+    //   console.log('Query: ' + event.query);
+    //   console.log('Duration: ' + event.duration + 'ms');
+    // });
   }
 
   async event(

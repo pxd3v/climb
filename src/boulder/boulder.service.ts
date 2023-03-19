@@ -5,10 +5,10 @@ import { PrismaService } from 'src/prisma/prisma.service';
 @Injectable()
 export class BoulderService {
   constructor(private prisma: PrismaService) {
-    prisma.$on<any>('query', (event: Prisma.QueryEvent) => {
-      console.log('Query: ' + event.query);
-      console.log('Duration: ' + event.duration + 'ms');
-    });
+    // prisma.$on<any>('query', (event: Prisma.QueryEvent) => {
+    //   console.log('Query: ' + event.query);
+    //   console.log('Duration: ' + event.duration + 'ms');
+    // });
   }
 
   async createBoulder(data: Prisma.BoulderCreateInput): Promise<Boulder> {

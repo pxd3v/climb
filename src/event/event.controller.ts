@@ -8,6 +8,7 @@ import {
   BadRequestException,
   Query,
 } from '@nestjs/common';
+import { Category, Gender, Prisma } from '@prisma/client';
 import { Request as RequestType } from 'express';
 import { JwtAuthGuard } from '../auth/jwt.auth-guard';
 import { EventService } from './event.service';
@@ -25,10 +26,15 @@ export class EventController {
 
   @UseGuards(JwtAuthGuard)
   @Get('/')
-  async getList(@Request() req) {
-    const where = req.user.isAdmin
-      ? undefined
-      : { Referee: { some: { userId: req.user.id } } };
+  async getList(@Request() req: RequestType, @Query('active') active: string) {
+    console.log('@@active', active);
+    const where: Prisma.EventWhereInput = {
+      ...(req.user.isAdmin
+        ? {}
+        : { Referee: { some: { userId: req.user.id } } }),
+      ...(active ? { ended: false } : {}),
+    };
+
     return await this.eventService.events({
       where,
     });
@@ -36,7 +42,7 @@ export class EventController {
 
   @UseGuards(JwtAuthGuard)
   @Get(':id')
-  async get(@Param('id') id) {
+  async get(@Param('id') id: string) {
     const event = await this.eventService.event({ id: Number(id) });
     if (!event) throw new BadRequestException('Invalid event');
     return event;
@@ -45,16 +51,16 @@ export class EventController {
   @UseGuards(JwtAuthGuard)
   @Get(':id/result')
   async getResults(
-    @Param('id') id,
-    @Query('minAge') minAge,
-    @Query('maxAge') maxAge,
-    @Query('gender') gender,
-    @Query('category') category,
+    @Param('id') id: string,
+    @Query('minAge') minAge: string,
+    @Query('maxAge') maxAge: string,
+    @Query('gender') gender: Gender | 'all',
+    @Query('category') category: Category | 'all',
   ) {
     if (id === undefined) return { errorMessage: 'please provide an ID' };
     const event = await this.eventService.getEventResult(
       { id: Number(id) },
-      { minAge, maxAge, gender, category },
+      { minAge: Number(minAge), maxAge: Number(maxAge), gender, category },
     );
     if (!event) throw new BadRequestException('Invalid event');
     return event;

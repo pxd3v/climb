@@ -34,10 +34,10 @@ type EntryToParse = {
 @Injectable()
 export class ResultService {
   constructor(private prisma: PrismaService, private dateService: DateService) {
-    prisma.$on<any>('query', (event: Prisma.QueryEvent) => {
-      console.log('Query: ' + event.query);
-      console.log('Duration: ' + event.duration + 'ms');
-    });
+    // prisma.$on<any>('query', (event: Prisma.QueryEvent) => {
+    //   console.log('Query: ' + event.query);
+    //   console.log('Duration: ' + event.duration + 'ms');
+    // });
   }
 
   async getEventResult(
@@ -45,12 +45,10 @@ export class ResultService {
     { category, gender, minAge, maxAge }: ResultFilters,
   ): Promise<unknown> {
     const hasToBeBornBefore = (minAge: number) =>
-      minAge
-        ? this.dateService.subtractYears(Date.now(), Number(minAge))
-        : undefined;
+      minAge ? this.dateService.subtractYears(Date.now(), minAge) : undefined;
     const hasToBeBornTill = (maxAge: number) =>
       maxAge
-        ? this.dateService.subtractYears(Date.now(), Number(maxAge) + 1)
+        ? this.dateService.subtractYears(Date.now(), maxAge + 1)
         : undefined;
     const categoryToFilter =
       category && category !== 'all' ? category : undefined;
