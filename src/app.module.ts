@@ -9,6 +9,7 @@ import { EventModule } from './event/event.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ResultModule } from './result/result.module';
 import { UserModule } from './user/user.module';
+import { redisStore } from 'cache-manager-ioredis-yet';
 
 @Module({
   imports: [
@@ -22,6 +23,16 @@ import { UserModule } from './user/user.module';
     ResultModule,
     EntryModule,
     BoulderModule,
+    CacheModule.registerAsync({
+      isGlobal: true,
+      useFactory: async () => ({
+        store: await redisStore({
+          host: 'localhost',
+          port: 6379,
+          ttl: 10000,
+        }),
+      }),
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],

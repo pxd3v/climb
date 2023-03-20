@@ -1,7 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Event, Prisma } from '@prisma/client';
-import { ResultFilters, ResultService } from 'src/result/result.service';
+import {
+  ResultFilters,
+  ResultList,
+  ResultService,
+} from 'src/result/result.service';
 
 @Injectable()
 export class EventService {
@@ -26,7 +30,7 @@ export class EventService {
   async getEventResult(
     eventWhereUniqueInput: Prisma.EventWhereUniqueInput,
     filters: ResultFilters,
-  ): Promise<unknown> {
+  ): Promise<ResultList> {
     return await this.resultService.getEventResult(
       eventWhereUniqueInput,
       filters,

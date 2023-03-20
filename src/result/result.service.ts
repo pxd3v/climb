@@ -31,6 +31,14 @@ type EntryToParse = {
   };
 };
 
+export type ResultList = {
+  name: string;
+  age: number;
+  gender: string;
+  category: Category;
+  score: number;
+}[];
+
 @Injectable()
 export class ResultService {
   constructor(private prisma: PrismaService, private dateService: DateService) {
@@ -43,7 +51,7 @@ export class ResultService {
   async getEventResult(
     eventWhereUniqueInput: Prisma.EventWhereUniqueInput,
     { category, gender, minAge, maxAge }: ResultFilters,
-  ): Promise<unknown> {
+  ): Promise<ResultList> {
     const hasToBeBornBefore = (minAge: number) =>
       minAge ? this.dateService.subtractYears(Date.now(), minAge) : undefined;
     const hasToBeBornTill = (maxAge: number) =>

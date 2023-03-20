@@ -7,15 +7,21 @@ import {
   Param,
   BadRequestException,
   Query,
+  Inject,
+  CACHE_MANAGER,
 } from '@nestjs/common';
 import { Category, Gender, Prisma } from '@prisma/client';
 import { Request as RequestType } from 'express';
 import { JwtAuthGuard } from '../auth/jwt.auth-guard';
 import { EventService } from './event.service';
+import { Cache } from 'cache-manager';
 
 @Controller('event')
 export class EventController {
-  constructor(private eventService: EventService) {}
+  constructor(
+    private eventService: EventService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+  ) {}
 
   @UseGuards(JwtAuthGuard)
   @Post('/')
@@ -58,11 +64,22 @@ export class EventController {
     @Query('category') category: Category | 'all',
   ) {
     if (id === undefined) return { errorMessage: 'please provide an ID' };
-    const event = await this.eventService.getEventResult(
+
+    const cachedResult: Record<any, any> = await this.cacheManager.get(
+      `${id}-${minAge}-${maxAge}-${gender}-${category}`,
+    );
+    if (cachedResult) return { ...cachedResult, fromCache: true };
+
+    const results = await this.eventService.getEventResult(
       { id: Number(id) },
       { minAge: Number(minAge), maxAge: Number(maxAge), gender, category },
     );
-    if (!event) throw new BadRequestException('Invalid event');
-    return event;
+
+    this.cacheManager.set(
+      `${id}-${minAge}-${maxAge}-${gender}-${category}`,
+      results,
+    );
+
+    return results;
   }
 }
