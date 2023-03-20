@@ -25,13 +25,16 @@ import { redisStore } from 'cache-manager-ioredis-yet';
     BoulderModule,
     CacheModule.registerAsync({
       isGlobal: true,
-      useFactory: async () => ({
-        store: await redisStore({
-          host: process.env.CACHE_URL,
-          port: 6379,
-          ttl: 10000,
-        }),
-      }),
+      useFactory: async () => {
+        console.log('@@env', process.env.CACHE_URL, process.env.DATABASE_URL);
+        return {
+          store: await redisStore({
+            host: process.env.CACHE_URL,
+            port: 6379,
+            ttl: 10000,
+          }),
+        };
+      },
     }),
   ],
   controllers: [AppController],
