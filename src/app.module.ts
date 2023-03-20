@@ -27,7 +27,7 @@ import { redisStore } from 'cache-manager-ioredis-yet';
       isGlobal: true,
       useFactory: async () => ({
         store: await redisStore({
-          host: 'localhost',
+          host: process.env.CACHE_URL,
           port: 6379,
           ttl: 10000,
         }),
