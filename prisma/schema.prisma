@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -67,7 +67,7 @@ model Entry {
 
 model Candidate {
   id       Int      @id @default(autoincrement())
-  number   Int      @default(autoincrement())
+  number   Int
   event    Event    @relation(fields: [eventId], references: [id])
   eventId  Int
   user     User     @relation(fields: [userId], references: [id])

@@ -1,3 +1,0 @@
--- AlterTable
-ALTER TABLE "Entry" ALTER COLUMN "tries" SET DEFAULT 0,
-ALTER COLUMN "sent" SET DEFAULT false;
