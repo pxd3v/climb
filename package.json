@@ -29,6 +29,7 @@
     "@nestjs/passport": "^9.0.3",
     "@nestjs/platform-express": "^9.0.0",
     "@prisma/client": "^4.11.0",
+    "bcrypt": "^5.1.0",
     "cache-manager": "^5.1.7",
     "cache-manager-ioredis-yet": "^1.1.0",
     "date-fns": "^2.29.3",

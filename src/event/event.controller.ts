@@ -25,14 +25,12 @@ export class EventController {
   @UseGuards(JwtAuthGuard)
   @Post('/')
   async create(@Request() req: RequestType) {
-    await this.eventService.createEvent(req.body);
-    return req.user;
+    return await this.eventService.createEvent(req.body);
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('/')
   async getList(@Request() req: RequestType, @Query('active') active: string) {
-    console.log('@@active', active);
     const where: Prisma.EventWhereInput = {
       ...(req.user.isAdmin
         ? {}

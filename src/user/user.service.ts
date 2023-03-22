@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { User, Prisma } from '@prisma/client';
+import { hash } from 'bcrypt';
+import { format } from 'date-fns';
 
 @Injectable()
 export class UserService {
@@ -46,9 +48,25 @@ export class UserService {
   }
 
   async createUser(data: Prisma.UserCreateInput): Promise<User> {
-    return this.prisma.user.create({
-      data,
+    const password: string = await hash(
+      data.password,
+      Number(process.env.HASH_SALT),
+    );
+
+    const birthDate = new Date(data.birthDate);
+
+    const user = await this.prisma.user.create({
+      data: {
+        ...data,
+        password,
+        birthDate,
+      },
     });
+
+    return {
+      ...user,
+      password: '',
+    };
   }
 
   async updateUser(params: {
