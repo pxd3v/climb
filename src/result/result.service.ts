@@ -103,35 +103,61 @@ export class ResultService {
       },
     });
 
-    if (!entries || !entries.length) return [];
+    const event = await this.prisma.event.findUnique({
+      where: {
+        id: eventWhereUniqueInput.id,
+      },
+    });
 
-    const result = this.parseEntries(entries);
+    if (!entries || !entries.length || !event) return [];
+
+    const result = this.parseEntries(entries, event.maxBouldersForScore);
 
     return result;
   }
 
-  parseEntries(entries: Array<EntryToParse>): Array<{
+  parseEntries(
+    entries: Array<EntryToParse>,
+    maxBouldersForScore: number,
+  ): Array<{
     name: string;
     age: number;
     gender: string;
     category: Category;
     score: number;
   }> {
-    const resultsMap = entries.reduce((acc, entry) => {
-      if (!entry.sent) return acc;
-      const { score, flashScore } = entry.boulder;
-      const scoreToAdd = entry.tries > 1 ? Number(score) : Number(flashScore);
-      const currentScore = acc[entry.candidateId]?.score ?? 0;
+    const allScoresPerCandidate: Record<number, { candidate: Candidate }> =
+      entries.reduce((acc, entry) => {
+        if (!entry.sent) return acc;
+        const { score, flashScore } = entry.boulder;
+        const scoreToAdd = entry.tries > 1 ? Number(score) : Number(flashScore);
+        const currentScores = acc[entry.candidateId]?.scores ?? [];
+        const scores = [...currentScores, scoreToAdd];
 
-      acc[entry.candidateId] = {
-        candidate: entry.candidate,
-        score: currentScore + scoreToAdd,
-      };
+        acc[entry.candidateId] = {
+          candidate: entry.candidate,
+          scores,
+        };
 
-      return acc;
-    }, {});
-    const resultsList = Object.keys(resultsMap)
-      .map((key) => resultsMap[key])
+        return acc;
+      }, {});
+
+    const totalScorePerCandidate = Object.keys(allScoresPerCandidate)
+      .map((key) => {
+        allScoresPerCandidate[key].scores.sort((a, b) => b - a);
+        const validScores = allScoresPerCandidate[key].scores.slice(
+          0,
+          maxBouldersForScore,
+        );
+        const score = validScores.reduce((acc, score) => {
+          acc += score;
+          return acc;
+        }, 0);
+        return {
+          candidate: allScoresPerCandidate[key].candidate,
+          score,
+        };
+      })
       .map(
         (result: { candidate: Candidate & { user: User }; score: number }) => {
           return {
@@ -147,7 +173,7 @@ export class ResultService {
           };
         },
       );
-    resultsList.sort((a, b) => b.score - a.score);
-    return resultsList;
+    totalScorePerCandidate.sort((a, b) => b.score - a.score);
+    return totalScorePerCandidate;
   }
 }

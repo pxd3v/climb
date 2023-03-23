@@ -37,14 +37,15 @@ model Boulder {
 }
 
 model Event {
-  id         Int         @id @default(autoincrement())
-  name       String      @unique
-  createdAt  DateTime    @default(now())
-  ended      Boolean     @default(false)
-  candidates Candidate[]
-  boulders   Boulder[]
-  entries    Entry[]
-  Referee    Referee[]
+  id                  Int         @id @default(autoincrement())
+  name                String      @unique
+  createdAt           DateTime    @default(now())
+  ended               Boolean     @default(false)
+  candidates          Candidate[]
+  boulders            Boulder[]
+  entries             Entry[]
+  Referee             Referee[]
+  maxBouldersForScore Int         @default(5)
 }
 
 model Entry {
