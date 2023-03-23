@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgres"
   url      = env("DATABASE_URL")
 }
 
@@ -45,7 +45,7 @@ model Event {
   boulders            Boulder[]
   entries             Entry[]
   Referee             Referee[]
-  maxBouldersForScore Int         @default(5)
+  maxBouldersForScore Int         @default(6)
 }
 
 model Entry {
