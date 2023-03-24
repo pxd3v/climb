@@ -144,7 +144,8 @@ export class ResultService {
 
     const totalScorePerCandidate = Object.keys(allScoresPerCandidate)
       .map((key) => {
-        allScoresPerCandidate[key].scores.sort((a, b) => b - a);
+        const allScores = allScoresPerCandidate[key].scores;
+        allScores.sort((a, b) => b - a);
         const validScores = allScoresPerCandidate[key].scores.slice(
           0,
           maxBouldersForScore,

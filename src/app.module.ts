@@ -10,7 +10,6 @@ import { PrismaModule } from './prisma/prisma.module';
 import { ResultModule } from './result/result.module';
 import { UserModule } from './user/user.module';
 // import { redisStore } from 'cache-manager-ioredis-yet';
-import { ArturModule } from './artur/artur.module';
 
 @Module({
   imports: [
@@ -24,7 +23,6 @@ import { ArturModule } from './artur/artur.module';
     ResultModule,
     EntryModule,
     BoulderModule,
-    ArturModule,
     // CacheModule.registerAsync({
     //   isGlobal: true,
     //   useFactory: async () => {
