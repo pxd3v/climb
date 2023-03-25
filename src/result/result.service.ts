@@ -61,6 +61,7 @@ export class ResultService {
     const categoryToFilter =
       category && category !== 'all' ? category : undefined;
     const genderToFilter = gender && gender !== 'all' ? gender : undefined;
+
     const entries = await this.prisma.entry.findMany({
       where: {
         eventId: eventWhereUniqueInput.id,
@@ -108,15 +109,17 @@ export class ResultService {
         id: eventWhereUniqueInput.id,
       },
     });
-
     if (!entries || !entries.length || !event) return [];
 
-    const result = this.parseEntries(entries, event.maxBouldersForScore);
+    const scoreList = this.generateScoreList(
+      entries,
+      event.maxBouldersForScore,
+    );
 
-    return result;
+    return scoreList;
   }
 
-  parseEntries(
+  generateScoreList(
     entries: Array<EntryToParse>,
     maxBouldersForScore: number,
   ): Array<{
@@ -126,55 +129,97 @@ export class ResultService {
     category: Category;
     score: number;
   }> {
-    const allScoresPerCandidate: Record<number, { candidate: Candidate }> =
-      entries.reduce((acc, entry) => {
-        if (!entry.sent) return acc;
-        const { score, flashScore } = entry.boulder;
-        const scoreToAdd = entry.tries > 1 ? Number(score) : Number(flashScore);
-        const currentScores = acc[entry.candidateId]?.scores ?? [];
-        const scores = [...currentScores, scoreToAdd];
-
-        acc[entry.candidateId] = {
-          candidate: entry.candidate,
-          scores,
-        };
-
-        return acc;
-      }, {});
-
+    const allScoresPerCandidate = this.mountAllScoresPerCandidate(entries);
+    console.log('@@allScoresPerCandidate', allScoresPerCandidate);
     const totalScorePerCandidate = Object.keys(allScoresPerCandidate)
-      .map((key) => {
-        const allScores = allScoresPerCandidate[key].scores;
-        allScores.sort((a, b) => b - a);
-        const validScores = allScoresPerCandidate[key].scores.slice(
-          0,
+      .map((candidateId) =>
+        this.mountCandidateScore(
+          allScoresPerCandidate,
+          candidateId,
           maxBouldersForScore,
-        );
-        const score = validScores.reduce((acc, score) => {
-          acc += score;
-          return acc;
-        }, 0);
-        return {
-          candidate: allScoresPerCandidate[key].candidate,
-          score,
-        };
-      })
-      .map(
-        (result: { candidate: Candidate & { user: User }; score: number }) => {
-          return {
-            name: result.candidate.user.name,
-            age: this.dateService.differenceInYears(
-              Date.now(),
-              result.candidate.user.birthDate,
-            ),
-            gender: result.candidate.user.gender,
-            category: result.candidate.category,
-            state: result.candidate.user.state,
-            score: result.score,
-          };
-        },
-      );
-    totalScorePerCandidate.sort((a, b) => b.score - a.score);
+        ),
+      )
+      .map((result) => this.formatCandidateResult(result));
+
+    totalScorePerCandidate.sort(this.compareScores);
     return totalScorePerCandidate;
+  }
+
+  mountAllScoresPerCandidate(entries: Array<EntryToParse>) {
+    return entries.reduce((acc, entry) => {
+      if (!entry.sent) return acc;
+      const { score, flashScore } = entry.boulder;
+      const scoreToAdd = entry.tries > 1 ? Number(score) : Number(flashScore);
+      const currentScores = acc[entry.candidateId]?.scores ?? [];
+      const scores = [...currentScores, scoreToAdd];
+
+      acc[entry.candidateId] = {
+        candidate: entry.candidate,
+        scores,
+      };
+
+      return acc;
+    }, {});
+  }
+
+  mountCandidateScore(
+    allScoresPerCandidate: Record<number, any>,
+    candidateId: string,
+    maxBouldersForScore: number,
+  ) {
+    const allScores = allScoresPerCandidate[candidateId].scores;
+    allScores.sort((a, b) => b - a);
+    const validScores = allScores.slice(0, maxBouldersForScore);
+    console.log('@@validScores', validScores);
+    const score = validScores.reduce((acc, score) => {
+      acc += score;
+      return acc;
+    }, 0);
+    return {
+      candidate: allScoresPerCandidate[candidateId].candidate,
+      otherScores: allScores.slice(maxBouldersForScore),
+      score,
+    };
+  }
+
+  formatCandidateResult(result: {
+    candidate: Candidate & { user: User };
+    otherScores: Array<number>;
+    score: number;
+  }) {
+    return {
+      name: result.candidate.user.name,
+      age: this.dateService.differenceInYears(
+        Date.now(),
+        result.candidate.user.birthDate,
+      ),
+      gender: result.candidate.user.gender,
+      category: result.candidate.category,
+      state: result.candidate.user.state,
+      otherScores: result.otherScores,
+      score: result.score,
+    };
+  }
+
+  compareScores(currentCandidate, nextCandidate) {
+    if (currentCandidate.score !== nextCandidate.score)
+      return nextCandidate.score - currentCandidate.score;
+    const currentOtherScores = currentCandidate.otherScores;
+    const nextOtherScores = nextCandidate.otherScores;
+
+    const biggerLength =
+      currentOtherScores.length > nextOtherScores.length
+        ? currentOtherScores.length
+        : nextOtherScores.length;
+
+    for (let i = 0; i < biggerLength; i++) {
+      const a = currentOtherScores[i] ?? 0;
+      const b = nextOtherScores[i] ?? 0;
+      if (a !== b) {
+        return b - a;
+      }
+    }
+
+    return 1;
   }
 }
