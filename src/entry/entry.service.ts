@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Entry } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateOrUpdateEntryDto } from './dto/create-or-update-entry.dto';
@@ -18,30 +18,97 @@ export class EntryService {
     candidateNumber,
     eventId,
     sent,
-  }: CreateOrUpdateEntryDto): Promise<Entry> {
-    const entry = await this.prisma.entry.findFirst({
-      where: {
-        boulder: { number: boulderNumber },
-        refereeId,
-        candidate: { number: candidateNumber },
-        eventId,
-      },
+  }: CreateOrUpdateEntryDto): Promise<Entry | { errorMessage: string }> {
+    const entry = await this._getEntry({
+      boulderNumber,
+      refereeId,
+      candidateNumber,
+      eventId,
     });
 
     if (entry?.sent) {
-      return entry;
+      console.log('@@error', {
+        err: 'Candidato ja tem Top registrado nesse boulder.',
+        params: {
+          boulderNumber,
+          refereeId,
+          candidateNumber,
+          eventId,
+          entry,
+        },
+      });
+      throw new HttpException(
+        'Candidato ja tem Top registrado nesse boulder.',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
-    if (entry) {
-      return this._updateEntry({ entryId: entry.id, sent, tries: entry.tries });
-    } else {
-      return this._createEntry({
-        boulderNumber,
-        refereeId,
-        candidateNumber,
-        eventId,
-        sent,
+    try {
+      if (entry) {
+        return this._updateEntry({
+          entryId: entry.id,
+          sent,
+          tries: entry.tries,
+        });
+      } else {
+        return this._createEntry({
+          boulderNumber,
+          refereeId,
+          candidateNumber,
+          eventId,
+          sent,
+        });
+      }
+    } catch (err) {
+      console.log('@@error', {
+        err,
+        params: {
+          boulderNumber,
+          refereeId,
+          candidateNumber,
+          eventId,
+          entry,
+        },
       });
+
+      throw new HttpException(
+        'Erro ao registrar entrada.',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  async _getEntry({
+    boulderNumber,
+    refereeId,
+    candidateNumber,
+    eventId,
+  }: CreateOrUpdateEntryDto): Promise<Entry> {
+    try {
+      const entry = await this.prisma.entry.findFirst({
+        where: {
+          boulder: { number: boulderNumber },
+          refereeId,
+          candidate: { number: candidateNumber },
+          eventId,
+        },
+      });
+      return entry;
+    } catch (err) {
+      console.log('@@error', {
+        err,
+        params: {
+          boulderNumber,
+          refereeId,
+          candidateNumber,
+          eventId,
+        },
+      });
+
+      throw new HttpException(
+        'Erro ao tentar localizar a entrada.',
+        HttpStatus.BAD_REQUEST,
+      );
     }
   }
 
