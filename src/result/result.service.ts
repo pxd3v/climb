@@ -130,7 +130,6 @@ export class ResultService {
     score: number;
   }> {
     const allScoresPerCandidate = this.mountAllScoresPerCandidate(entries);
-    console.log('@@allScoresPerCandidate', allScoresPerCandidate);
     const totalScorePerCandidate = Object.keys(allScoresPerCandidate)
       .map((candidateId) =>
         this.mountCandidateScore(
@@ -170,7 +169,6 @@ export class ResultService {
     const allScores = allScoresPerCandidate[candidateId].scores;
     allScores.sort((a, b) => b - a);
     const validScores = allScores.slice(0, maxBouldersForScore);
-    console.log('@@validScores', validScores);
     const score = validScores.reduce((acc, score) => {
       acc += score;
       return acc;
