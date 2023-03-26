@@ -21,7 +21,6 @@ export class EntryService {
   }: CreateOrUpdateEntryDto): Promise<Entry | { errorMessage: string }> {
     const entry = await this._getEntry({
       boulderNumber,
-      refereeId,
       candidateNumber,
       eventId,
     });
@@ -49,6 +48,7 @@ export class EntryService {
           entryId: entry.id,
           sent,
           tries: entry.tries,
+          refereeId,
         });
       } else {
         return this._createEntry({
@@ -80,7 +80,6 @@ export class EntryService {
 
   async _getEntry({
     boulderNumber,
-    refereeId,
     candidateNumber,
     eventId,
   }: CreateOrUpdateEntryDto): Promise<Entry> {
@@ -88,7 +87,6 @@ export class EntryService {
       const entry = await this.prisma.entry.findFirst({
         where: {
           boulder: { number: boulderNumber },
-          refereeId,
           candidate: { number: candidateNumber },
           eventId,
         },
@@ -99,7 +97,6 @@ export class EntryService {
         err,
         params: {
           boulderNumber,
-          refereeId,
           candidateNumber,
           eventId,
         },
@@ -112,12 +109,13 @@ export class EntryService {
     }
   }
 
-  _updateEntry({ entryId, sent = false, tries }) {
+  _updateEntry({ entryId, sent = false, tries, refereeId }) {
     const whereToUpdate = { id: entryId };
     return this.prisma.entry.update({
       data: {
         sent: sent,
         tries: tries + 1,
+        refereeId,
       },
       where: whereToUpdate,
     });
