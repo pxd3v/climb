@@ -27,7 +27,7 @@ import { UserModule } from './user/user.module';
     BoulderModule,
     ThrottlerModule.forRoot({
       ttl: 60,
-      limit: 10,
+      limit: 1000,
     }),
     // CacheModule.registerAsync({
     //   isGlobal: true,
