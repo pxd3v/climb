@@ -1,13 +1,16 @@
 import { Controller, Post, Body, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/auth/jwt.auth-guard';
+import { JwtAuthGuard } from 'src/auth/jwt/jwt.auth-guard';
+import { Roles } from 'src/auth/roles/roles.decorator';
+import { RolesGuard } from 'src/auth/roles/roles.guard';
 import { BoulderService } from './boulder.service';
 import { CreateBoulderDto } from './dto/create-boulder.dto';
 
 @Controller('boulder')
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class BoulderController {
   constructor(private readonly boulderService: BoulderService) {}
 
-  @UseGuards(JwtAuthGuard)
+  @Roles('admin')
   @Post()
   async create(@Body() createBoulderDto: CreateBoulderDto) {
     const { eventId, ...rest } = createBoulderDto;

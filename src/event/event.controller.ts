@@ -12,25 +12,30 @@ import {
 } from '@nestjs/common';
 import { Category, Gender, Prisma } from '@prisma/client';
 import { Request as RequestType } from 'express';
-import { JwtAuthGuard } from '../auth/jwt.auth-guard';
+import { Roles } from 'src/auth/roles/roles.decorator';
+import { RolesGuard } from 'src/auth/roles/roles.guard';
+import { JwtAuthGuard } from '../auth/jwt/jwt.auth-guard';
 import { EventService } from './event.service';
 // import { Cache } from 'cache-manager';
 
 @Controller('event')
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class EventController {
   constructor(
     private eventService: EventService, // @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
-  @UseGuards(JwtAuthGuard)
+  @Roles('admin')
   @Post('/')
   async create(@Request() req: RequestType) {
     return await this.eventService.createEvent(req.body);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get('/')
-  async getList(@Request() req: RequestType, @Query('active') active: string) {
+  async getEvents(
+    @Request() req: RequestType,
+    @Query('active') active: string,
+  ) {
     const where: Prisma.EventWhereInput = {
       ...(req.user.isAdmin
         ? {}
@@ -43,17 +48,15 @@ export class EventController {
     });
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get(':id')
-  async get(@Param('id') id: string) {
+  async getEventById(@Param('id') id: string) {
     const event = await this.eventService.event({ id: Number(id) });
     if (!event) throw new BadRequestException('Invalid event');
     return event;
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get(':id/result')
-  async getResults(
+  async getEventResults(
     @Param('id') id: string,
     @Query('minAge') minAge: string,
     @Query('maxAge') maxAge: string,
