@@ -19,6 +19,39 @@ export class EntryService {
     eventId,
     sent,
   }: CreateOrUpdateEntryDto): Promise<Entry | { errorMessage: string }> {
+    const event = await this.prisma.event.findUnique({
+      where: { id: eventId },
+      select: { ended: true },
+    });
+
+    if (!event) {
+      console.log('@@error', {
+        err: 'Evento não encontrado.',
+        params: {
+          boulderNumber,
+          refereeId,
+          candidateNumber,
+          eventId,
+          event,
+        },
+      });
+      throw new HttpException('Evento não encontrado.', HttpStatus.BAD_REQUEST);
+    }
+
+    if (event.ended) {
+      console.log('@@error', {
+        err: 'Evento ja terminado.',
+        params: {
+          boulderNumber,
+          refereeId,
+          candidateNumber,
+          eventId,
+          event,
+        },
+      });
+      throw new HttpException('Evento ja terminado.', HttpStatus.BAD_REQUEST);
+    }
+
     const entry = await this._getEntry({
       boulderNumber,
       candidateNumber,
