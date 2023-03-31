@@ -19,18 +19,19 @@ import { EventService } from './event.service';
 // import { Cache } from 'cache-manager';
 
 @Controller('event')
-@UseGuards(JwtAuthGuard, RolesGuard)
 export class EventController {
   constructor(
     private eventService: EventService, // @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
   @Roles('admin')
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Post('/')
   async create(@Request() req: RequestType) {
     return await this.eventService.createEvent(req.body);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('/')
   async getEvents(
     @Request() req: RequestType,
@@ -48,6 +49,7 @@ export class EventController {
     });
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   async getEventById(@Param('id') id: string) {
     const event = await this.eventService.event({ id: Number(id) });
