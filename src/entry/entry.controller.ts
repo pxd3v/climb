@@ -23,6 +23,11 @@ export class EntryController {
         candidateId: Number(candidateId) || undefined,
         eventId: Number(eventId) || undefined,
       },
+      orderBy: {
+        boulder: {
+          number: 'desc',
+        },
+      },
     });
   }
 }
