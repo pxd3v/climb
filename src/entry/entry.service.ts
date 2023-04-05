@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { Entry } from '@prisma/client';
+import { Entry, Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateOrUpdateEntryDto } from './dto/create-or-update-entry.dto';
 
@@ -10,6 +10,26 @@ export class EntryService {
     //   console.log('Query: ' + event.query);
     //   console.log('Duration: ' + event.duration + 'ms');
     // });
+  }
+
+  async entries(params: {
+    skip?: number;
+    take?: number;
+    cursor?: Prisma.EntryWhereUniqueInput;
+    where?: Prisma.EntryWhereInput;
+    orderBy?: Prisma.EntryOrderByWithRelationInput;
+  }): Promise<Entry[]> {
+    const { skip, take, cursor, where, orderBy } = params;
+    return this.prisma.entry.findMany({
+      skip,
+      take,
+      cursor,
+      where,
+      orderBy,
+      include: {
+        boulder: true,
+      },
+    });
   }
 
   async createOrUpdateEntry({

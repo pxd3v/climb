@@ -109,6 +109,7 @@ export class ResultService {
         id: eventWhereUniqueInput.id,
       },
     });
+
     if (!entries || !entries.length || !event) return [];
 
     const scoreList = this.generateScoreList(
@@ -128,6 +129,7 @@ export class ResultService {
     gender: string;
     category: Category;
     score: number;
+    candidateId: number;
   }> {
     const allScoresPerCandidate = this.mountAllScoresPerCandidate(entries);
     const totalScorePerCandidate = Object.keys(allScoresPerCandidate)
@@ -139,7 +141,6 @@ export class ResultService {
         ),
       )
       .map((result) => this.formatCandidateResult(result));
-
     totalScorePerCandidate.sort(this.compareScores);
     return totalScorePerCandidate;
   }
@@ -174,7 +175,10 @@ export class ResultService {
       return acc;
     }, 0);
     return {
-      candidate: allScoresPerCandidate[candidateId].candidate,
+      candidate: {
+        ...allScoresPerCandidate[candidateId].candidate,
+        id: candidateId,
+      },
       otherScores: allScores.slice(maxBouldersForScore),
       score,
     };
@@ -196,6 +200,7 @@ export class ResultService {
       state: result.candidate.user.state,
       otherScores: result.otherScores,
       score: result.score,
+      candidateId: result.candidate.id,
     };
   }
 

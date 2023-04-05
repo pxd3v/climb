@@ -13,6 +13,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { ResultModule } from './result/result.module';
 import { UserModule } from './user/user.module';
 // import { redisStore } from 'cache-manager-ioredis-yet';
+import { CandidateModule } from './candidate/candidate.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { UserModule } from './user/user.module';
       ttl: 60,
       limit: 1000,
     }),
+    CandidateModule,
     // CacheModule.registerAsync({
     //   isGlobal: true,
     //   useFactory: async () => {
