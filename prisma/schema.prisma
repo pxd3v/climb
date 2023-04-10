@@ -34,6 +34,8 @@ model Boulder {
   entry      Entry[]
   sector     String
   color      BoulderGrade @default(verde)
+
+  @@unique([number, eventId], name: "boulder_number_event_key")
 }
 
 model Event {
