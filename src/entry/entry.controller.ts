@@ -1,7 +1,16 @@
-import { Controller, Body, UseGuards, Put, Get, Query } from '@nestjs/common';
+import {
+  Controller,
+  Body,
+  UseGuards,
+  Put,
+  Get,
+  Query,
+  Delete,
+} from '@nestjs/common';
 import { EntryService } from './entry.service';
 import { JwtAuthGuard } from 'src/auth/jwt/jwt.auth-guard';
 import { CreateOrUpdateEntryDto } from './dto/create-or-update-entry.dto';
+import { Param } from '@nestjs/common/decorators';
 
 @Controller('entry')
 export class EntryController {
@@ -29,5 +38,11 @@ export class EntryController {
         },
       },
     });
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id')
+  delete(@Param('id') id: string) {
+    return this.entryService.deleteEntry(Number(id));
   }
 }
