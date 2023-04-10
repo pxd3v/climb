@@ -1,7 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { User, Prisma } from '@prisma/client';
+import { User, Prisma, Referee } from '@prisma/client';
 import { hash } from 'bcrypt';
+
+export type UserProfile = {
+  email: User['email'];
+  Referee: Referee[];
+  isAdmin: User['isAdmin'];
+  id: User['id'];
+};
 
 @Injectable()
 export class UserService {
@@ -9,7 +16,7 @@ export class UserService {
 
   async user(
     userWhereUniqueInput: Prisma.UserWhereUniqueInput,
-  ): Promise<Partial<User> | null> {
+  ): Promise<User | null> {
     return this.prisma.user.findUnique({
       where: userWhereUniqueInput,
     });
@@ -17,7 +24,7 @@ export class UserService {
 
   async profile(
     userWhereUniqueInput: Prisma.UserWhereUniqueInput,
-  ): Promise<Partial<User> | null> {
+  ): Promise<UserProfile | null> {
     return this.prisma.user.findUnique({
       where: userWhereUniqueInput,
       select: {
