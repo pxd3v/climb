@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Query, Get } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/jwt/jwt.auth-guard';
 import { Roles } from 'src/auth/roles/roles.decorator';
 import { RolesGuard } from 'src/auth/roles/roles.guard';
@@ -20,6 +20,17 @@ export class BoulderController {
         connect: {
           id: eventId,
         },
+      },
+    });
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get()
+  fetch(@Query('eventId') eventId: string, @Query('number') number: string) {
+    return this.boulderService.fetch({
+      boulder_number_event_key: {
+        eventId: Number(eventId) || undefined,
+        number: Number(number) || undefined,
       },
     });
   }
