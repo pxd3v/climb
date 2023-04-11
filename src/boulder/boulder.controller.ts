@@ -26,11 +26,8 @@ export class BoulderController {
 
   @UseGuards(JwtAuthGuard)
   @Get()
-  getBoulderData(
-    @Query('eventId') eventId: string,
-    @Query('number') number: string,
-  ) {
-    return this.boulderService.getBoulderData({
+  fetch(@Query('eventId') eventId: string, @Query('number') number: string) {
+    return this.boulderService.fetch({
       boulder_number_event_key: {
         eventId: Number(eventId) || undefined,
         number: Number(number) || undefined,

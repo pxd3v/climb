@@ -17,7 +17,7 @@ export class BoulderService {
     });
   }
 
-  async getBoulderData(
+  async fetch(
     boulderWhere: Prisma.BoulderWhereUniqueInput,
   ): Promise<Boulder | null> {
     const boulder = await this.prisma.boulder.findUnique({
