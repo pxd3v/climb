@@ -200,7 +200,7 @@ export class EntryService {
     });
   }
 
-  async deleteEntry(entryId: number): Promise<Entry> {
+  async delete(entryId: number): Promise<Entry> {
     const entry = await this.prisma.entry.findUnique({
       where: { id: entryId },
       select: { event: { select: { ended: true } } },
