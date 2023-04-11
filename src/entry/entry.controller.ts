@@ -43,6 +43,6 @@ export class EntryController {
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
   delete(@Param('id') id: string) {
-    return this.entryService.deleteEntry(Number(id));
+    return this.entryService.delete(Number(id));
   }
 }
