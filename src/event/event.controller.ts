@@ -49,7 +49,6 @@ export class EventController {
     });
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get(':id')
   async getEventById(@Param('id') id: string) {
     const event = await this.eventService.event({ id: Number(id) });
