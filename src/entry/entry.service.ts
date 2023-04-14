@@ -200,4 +200,48 @@ export class EntryService {
       },
     });
   }
+
+  async delete(entryId: number): Promise<Entry> {
+    const entry = await this.prisma.entry.findUnique({
+      where: { id: entryId },
+      select: { event: { select: { ended: true } } },
+    });
+
+    if (!entry) {
+      console.log('@@error', {
+        err: 'Entrada não encontrada.',
+        params: {
+          entryId: entryId,
+        },
+      });
+      throw new HttpException(
+        'Entrada não encontrada.',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    if (!entry.event) {
+      console.log('@@error', {
+        err: 'Evento não encontrado.',
+        params: {
+          entryId: entryId,
+        },
+      });
+      throw new HttpException('Evento não encontrado.', HttpStatus.BAD_REQUEST);
+    }
+
+    if (entry.event.ended) {
+      console.log('@@error', {
+        err: 'Evento ja terminado.',
+        params: {
+          entryId: entryId,
+        },
+      });
+      throw new HttpException('Evento ja terminado.', HttpStatus.BAD_REQUEST);
+    }
+
+    return this.prisma.entry.delete({
+      where: { id: entryId },
+    });
+  }
 }
