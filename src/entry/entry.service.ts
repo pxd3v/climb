@@ -28,6 +28,7 @@ export class EntryService {
       orderBy,
       include: {
         boulder: true,
+        candidate: true,
       },
     });
   }
