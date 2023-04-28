@@ -5,6 +5,8 @@ import {
   UseGuards,
   Post,
   Body,
+  Put,
+  Param,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/jwt/jwt.auth-guard';
 import { UserService } from './user.service';
@@ -22,6 +24,15 @@ export class UserController {
   @Post()
   createUser(@Body() body: Prisma.UserCreateInput) {
     return this.userService.createUser(body);
+  }
+
+  @Roles('admin')
+  @Put(':id')
+  updatePassword(@Body() body: { password: string }, @Param('id') id: string) {
+    return this.userService.updatePassword({
+      id: Number(id),
+      password: body.password,
+    });
   }
 
   @Get()

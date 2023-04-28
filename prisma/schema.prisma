@@ -22,11 +22,13 @@ model User {
   isAdmin        Boolean     @default(false)
   participations Candidate[]
   Referee        Referee[]
+  document       String?
+  phone          String?
 }
 
 model Boulder {
   id         Int          @id @default(autoincrement())
-  number     Int          @unique
+  number     Int
   event      Event        @relation(fields: [eventId], references: [id])
   eventId    Int
   flashScore Int

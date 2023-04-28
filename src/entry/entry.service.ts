@@ -186,7 +186,14 @@ export class EntryService {
       data: {
         sent,
         tries: 1,
-        boulder: { connect: { number: boulderNumber } },
+        boulder: {
+          connect: {
+            boulder_number_event_key: {
+              eventId: eventId,
+              number: boulderNumber,
+            },
+          },
+        },
         candidate: {
           connect: {
             candidate_number_event_key: {

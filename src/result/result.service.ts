@@ -142,16 +142,18 @@ export class ResultService {
       )
       .map((result) => this.formatCandidateResult(result));
     totalScorePerCandidate.sort(this.compareScores);
+
     return totalScorePerCandidate;
   }
 
   mountAllScoresPerCandidate(entries: Array<EntryToParse>) {
     return entries.reduce((acc, entry) => {
-      if (!entry.sent) return acc;
       const { score, flashScore } = entry.boulder;
-      const scoreToAdd = entry.tries > 1 ? Number(score) : Number(flashScore);
+      const sentScore = entry.tries > 1 ? Number(score) : Number(flashScore);
+      const scoreToAdd = entry.sent ? sentScore : 0;
       const currentScores = acc[entry.candidateId]?.scores ?? [];
       const scores = [...currentScores, scoreToAdd];
+      console.log('@@entry', scoreToAdd, currentScores, scores);
 
       acc[entry.candidateId] = {
         candidate: entry.candidate,
