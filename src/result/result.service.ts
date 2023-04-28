@@ -153,7 +153,6 @@ export class ResultService {
       const scoreToAdd = entry.sent ? sentScore : 0;
       const currentScores = acc[entry.candidateId]?.scores ?? [];
       const scores = [...currentScores, scoreToAdd];
-      console.log('@@entry', scoreToAdd, currentScores, scores);
 
       acc[entry.candidateId] = {
         candidate: entry.candidate,
